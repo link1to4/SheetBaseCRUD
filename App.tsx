@@ -28,7 +28,10 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [scriptUrl, setScriptUrl] = useState<string>(() => localStorage.getItem('sheet_script_url') || '');
+  
+  // URL from Environment Variable
+  const scriptUrl = process.env.GOOGLE_SHEET_SCRIPT_URL || '';
+  
   const [isSetupOpen, setIsSetupOpen] = useState(false);
   
   // Form State
@@ -38,11 +41,6 @@ const App: React.FC = () => {
 
   // Search State
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Persist URL
-  useEffect(() => {
-    localStorage.setItem('sheet_script_url', scriptUrl);
-  }, [scriptUrl]);
 
   // Initial Load
   const loadData = useCallback(async () => {
@@ -153,8 +151,6 @@ const App: React.FC = () => {
       <InstructionModal 
         isOpen={isSetupOpen} 
         onClose={() => setIsSetupOpen(false)} 
-        scriptUrl={scriptUrl} 
-        setScriptUrl={setScriptUrl} 
       />
 
       {/* Navbar */}
@@ -202,8 +198,8 @@ const App: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={loadData}
-              disabled={loading}
-              className="inline-flex items-center px-4 py-2.5 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-sm transition-all"
+              disabled={loading || !scriptUrl}
+              className="inline-flex items-center px-4 py-2.5 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-sm transition-all disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
@@ -211,7 +207,7 @@ const App: React.FC = () => {
              <button
               onClick={handleGenerateAiData}
               disabled={aiLoading || loading || !scriptUrl}
-              className="inline-flex items-center px-4 py-2.5 border border-purple-200 text-sm font-medium rounded-lg text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-sm transition-all"
+              className="inline-flex items-center px-4 py-2.5 border border-purple-200 text-sm font-medium rounded-lg text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-sm transition-all disabled:opacity-50"
             >
               {aiLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
               Generate Mock Data
@@ -242,17 +238,19 @@ const App: React.FC = () => {
         )}
 
         {/* Empty State when no URL */}
-        {!scriptUrl && !error && (
+        {!scriptUrl && (
             <div className="text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-300">
                 <Settings className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No Connection</h3>
-                <p className="mt-1 text-sm text-gray-500">Connect to your Google Sheet to start managing data.</p>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Environment Not Configured</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                    The <code>GOOGLE_SHEET_SCRIPT_URL</code> environment variable is missing.
+                </p>
                 <div className="mt-6">
                     <button
                         onClick={() => setIsSetupOpen(true)}
                         className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     >
-                        Setup Connection
+                        View Setup Instructions
                     </button>
                 </div>
             </div>

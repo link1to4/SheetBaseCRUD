@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
     // Ensure process.env.API_KEY works in the client-side code
     define: {
       'process.env.API_KEY': JSON.stringify(env.API_KEY),
+      'process.env.GOOGLE_SHEET_SCRIPT_URL': JSON.stringify(env.GOOGLE_SHEET_SCRIPT_URL),
     },
   };
 });
