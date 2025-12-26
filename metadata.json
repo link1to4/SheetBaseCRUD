@@ -1,0 +1,5 @@
+{
+  "name": "SheetBase CRUD",
+  "description": "A fully functional CRUD application using Google Sheets as a database and Google Apps Script as the API backend. Includes Gemini AI integration for generating mock data.",
+  "requestFramePermissions": []
+}
